@@ -63,12 +63,13 @@ export async function copiaFoto(da, a, percorsi) {
   return mancate;
 }
 
-/* le foto citate da rating-data.json e dalle sue copie di sicurezza nella cartella */
+/* Le foto citate da rating-data.json e dalle sue copie di sicurezza nella cartella.
+   null se uno di quei file non si legge: non si può sapere quali foto citi, quindi nessuna è sicuramente orfana. */
 export async function fotoCitateNeiFile(dirHandle) {
   const citate = new Set();
   for await (const [nome, h] of dirHandle.entries()) {
     if (h.kind !== 'file' || !nome.startsWith('rating-data') || !nome.endsWith('.json')) continue;
-    try { fotoCitate(normalizza(JSON.parse(await (await h.getFile()).text()))).forEach((f) => citate.add(f)); } catch (e) {}
+    try { fotoCitate(normalizza(JSON.parse(await (await h.getFile()).text()))).forEach((f) => citate.add(f)); } catch (e) { return null; }
   }
   return citate;
 }

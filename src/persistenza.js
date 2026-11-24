@@ -226,6 +226,7 @@ async function pulisciFoto() {
   if (!S.dirHandle || !S.permessoCartella || S.conflitto || !ultimoSalvato || ultimoSalvato !== sync) return;
   try {
     const citate = await fotoCitateNeiFile(S.dirHandle);
+    if (!citate) return; // una copia illeggibile potrebbe citare qualunque foto: meglio non togliere niente
     fotoCitate(S.dati).forEach((f) => citate.add(f));
     await eliminaFoto(S.dirHandle, fotoOrfane(await elencaFoto(S.dirHandle), citate));
   } catch (e) {}
