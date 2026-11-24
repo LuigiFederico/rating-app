@@ -9,6 +9,7 @@ import { categoria, oggetto } from '../core/calcoli.js';
 import { primoSegno } from '../core/formato.js';
 import { cambia } from '../azioni.js';
 import { scegliCartella, riattivaAccesso, confermaVersione } from '../persistenza.js';
+import { esportaDati } from '../export/index.js';
 import { render, renderSheets, vai, apriSheet, sheetAperto, svuotaSheet, chiudiSheet, chiudiUnLivello, finitoIndietro } from './render.js';
 import { anteprima } from './sheet/categoria.js';
 import { bloccoVoto, bloccoCampi, bloccoFoto } from './sheet/modifica.js';
@@ -218,6 +219,7 @@ function clicVista(e) {
   else if (t.id === 'nuovaCategoria') apriNuovaCategoria();
   else if (t.id === 'pickDir') scegliCartella();
   else if (t.id === 'riattiva') riattivaAccesso();
+  else if (t.id === 'esporta') esportaDati();
 }
 
 function clicSheet(e) {

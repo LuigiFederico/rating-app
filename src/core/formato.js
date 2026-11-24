@@ -49,6 +49,12 @@ export function primoSegno(testo) {
   return new Intl.Segmenter('it', { granularity: 'grapheme' }).segment(t)[Symbol.iterator]().next().value.segment;
 }
 
+/* nome del file esportato: 'rating-app-2026-11-24.zip' (data locale) */
+export function nomeExport(oggi = new Date()) {
+  const z = (n) => String(n).padStart(2, '0');
+  return 'rating-app-' + oggi.getFullYear() + '-' + z(oggi.getMonth() + 1) + '-' + z(oggi.getDate()) + '.zip';
+}
+
 /* 'alle 14:05' */
 export function orarioBreve(iso) {
   const d = new Date(iso);

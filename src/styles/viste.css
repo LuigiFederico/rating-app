@@ -130,3 +130,8 @@
   display: flex; align-items: center; justify-content: center; flex: none;
 }
 .profilo-titolo { font-size: 26px; }
+.contatori { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.contatore { display: flex; flex-direction: column; padding: 12px; border-radius: 18px; background: var(--superficie); }
+.contatore-n { font-size: 26px; line-height: 1.1; }
+.contatore .v { font-size: 12px; text-align: left; }
+.versione { margin-top: auto; padding-top: 12px; text-align: center; font-size: 12px; color: var(--secondario); }

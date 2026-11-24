@@ -21,8 +21,16 @@ function serviceWorker() {
   };
 }
 
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+const oggi = new Date(), z = (n) => String(n).padStart(2, '0');
+
 export default defineConfig({
   // percorsi relativi: l'app funziona sotto https://<utente>.github.io/rating-app/
   base: './',
-  plugins: [serviceWorker()]
+  plugins: [serviceWorker()],
+  // mostrate in fondo al profilo; in sviluppo la data è quella di avvio del server
+  define: {
+    __VERSIONE_APP__: JSON.stringify(pkg.version),
+    __DATA_BUILD__: JSON.stringify(oggi.getFullYear() + '-' + z(oggi.getMonth() + 1) + '-' + z(oggi.getDate()))
+  }
 });
