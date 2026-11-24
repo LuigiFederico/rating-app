@@ -7,7 +7,7 @@ import { ICONA } from '../componenti.js';
 
 function tile(c) {
   const n = conteggio(S.dati, c.id);
-  return '<button class="tile" data-id="' + esc(c.id) + '" style="background:' + esc(c.colore) + '"'
+  return '<button class="tile" data-id="' + esc(c.id) + '" data-vai="categoria" data-categoria="' + esc(c.id) + '" style="background:' + esc(c.colore) + '"'
     + ' aria-label="' + esc(c.nome) + ', ' + testoConteggio(n.votati, n.daProvare) + '. Tieni premuto per riordinare, o Alt e frecce">'
     + '<span class="big" aria-hidden="true">' + esc(c.emoji) + '</span>'
     + '<span class="tile-testi"><span class="nm">' + esc(c.nome) + '</span>'

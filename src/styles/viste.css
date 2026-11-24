@@ -46,6 +46,78 @@
 .vuoto-titolo { font-size: 22px; }
 .vuoto-testo { font-size: 15px; line-height: 1.45; color: var(--secondario); }
 
+/* ---------- Categoria ---------- */
+.categoria { display: flex; flex-direction: column; min-height: 100%; padding-bottom: calc(110px + var(--sicuro-basso)); }
+.cat-testa {
+  display: flex; flex-direction: column; gap: 12px; padding: calc(12px + var(--sicuro-alto)) 20px 16px;
+  border-radius: 0 0 28px 28px;
+}
+.cat-barra { display: flex; justify-content: space-between; align-items: center; }
+.cat-indietro { margin-left: -10px; }
+.pillola {
+  display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 22px;
+  background: var(--superficie); font-size: 13px; font-weight: 600;
+}
+.cat-titolo { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.cat-titolo > div { min-width: 0; }
+.cat-emoji { font-size: 44px; line-height: 1; }
+.cat-titolo h1 { font-size: 34px; line-height: 1; overflow-wrap: anywhere; }
+.cat-conta { margin-top: 4px; font-size: 13px; }
+.segmenti { display: flex; gap: 4px; padding: 4px; border-radius: 24px; background: rgba(30, 27, 24, .08); }
+.seg { flex: 1; min-width: 0; height: 40px; border-radius: 20px; font: 600 14px var(--font); white-space: nowrap; }
+.seg[aria-pressed="true"] { background: var(--superficie); }
+
+.cat-corpo { display: flex; flex-direction: column; gap: 10px; padding: 14px 20px 0; }
+.ordina { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--secondario); }
+.chip {
+  height: 36px; padding: 0 14px; border-radius: 18px; border: 1.5px solid var(--bordo); background: var(--superficie);
+  font: 500 13px var(--font); color: var(--inchiostro); white-space: nowrap; position: relative;
+}
+/* area di tocco da 44px intorno al chip */
+.chip::after { content: ''; position: absolute; inset: -4px 0; }
+.chip[aria-pressed="true"] { background: var(--inchiostro); border-color: var(--inchiostro); color: var(--carta); }
+
+.righe { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.riga {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 68px; padding: 10px 12px;
+  border-radius: 18px; background: var(--superficie); text-align: left;
+}
+.mini {
+  width: 48px; height: 48px; flex: none; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  font-size: 22px; overflow: hidden;
+}
+.riga-testi { flex: 1; min-width: 0; display: flex; flex-direction: column; text-align: left; }
+.riga-nome { font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.riga-sub { font-size: 13px; color: var(--secondario); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.riga-voto { font-size: 22px; line-height: 1; }
+.riga-apri { align-self: stretch; justify-content: center; }
+.provato { height: 44px; padding: 0 14px; border-radius: 22px; background: var(--accento); font-size: 13px; font-weight: 700; flex: none; }
+
+.podio { display: flex; align-items: flex-end; gap: 10px; height: 220px; margin-top: 6px; }
+.podio-posto { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.podio-nome { max-width: 100%; font-size: 13px; font-weight: 600; text-align: center; overflow-wrap: anywhere; }
+.podio-gradino {
+  width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border-radius: 20px 20px 8px 8px; background: var(--superficie);
+}
+.podio-gradino--1 { height: 160px; background: var(--accento); }
+.podio-gradino--2 { height: 110px; }
+.podio-gradino--3 { height: 80px; }
+.podio-n { font-size: 30px; }
+.podio-gradino--1 .podio-n { font-size: 38px; }
+.podio-gradino--3 .podio-n { font-size: 26px; }
+.podio-voto { font-size: 12px; color: var(--secondario); }
+.podio-gradino--1 .podio-voto { color: var(--inchiostro); }
+.classifica { counter-reset: pos 3; }
+.classifica li { display: flex; align-items: center; gap: 8px; counter-increment: pos; }
+.classifica li::before { content: counter(pos); width: 22px; flex: none; text-align: right; font: 800 15px var(--titoli); color: var(--secondario); }
+
+.fab {
+  position: fixed; right: max(20px, calc(50% - var(--colonna) / 2 + 20px)); bottom: calc(34px + var(--sicuro-basso)); z-index: 5;
+  width: 64px; height: 64px; border-radius: 32px; background: var(--accento);
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 24px -10px rgba(30, 27, 24, .5);
+}
+
 /* ---------- Profilo ---------- */
 .profilo {
   display: flex; flex-direction: column; gap: 14px; min-height: 100%;

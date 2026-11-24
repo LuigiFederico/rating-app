@@ -1,23 +1,37 @@
-/* Pannello "Nuova categoria": nome, emoji e colore, con l'anteprima della tile. */
+/* Pannello categoria: nuova o modifica (nome, emoji, colore, con l'anteprima della tile), ed eliminazione. */
 
 import { S } from '../../state.js';
 import { EMOJI, PALETTE } from '../../core/costanti.js';
 import { esc } from '../../core/formato.js';
+import { categoria, oggettiDi } from '../../core/calcoli.js';
 import { ICONA } from '../componenti.js';
 
 /* la tile come apparirà in Home */
 export function anteprima(c) {
   return '<span class="big" aria-hidden="true">' + (esc(c.emoji) || '·') + '</span>'
     + '<span class="tile-testi"><span class="nm">' + (esc(c.nome.trim()) || 'Nome') + '</span>'
-    + '<span class="ct">Ancora vuota</span></span>';
+    + '<span class="ct">' + (c.id ? 'Anteprima' : 'Ancora vuota') + '</span></span>';
+}
+
+/* conferma dell'eliminazione, al posto dei pulsanti */
+function conferma(c) {
+  const n = oggettiDi(S.dati, c.id).length;
+  // il nome salvato, non quello che si sta scrivendo: è quello che verrà eliminato
+  const salvata = categoria(S.dati, c.id);
+  return '<div class="avviso avviso--pericolo" role="alert">' + ICONA.info + '<span><strong>Eliminare ' + esc(salvata ? salvata.nome : 'la categoria') + '?</strong> '
+    + (n > 1 ? 'Spariscono anche i suoi ' + n + ' oggetti.' : n === 1 ? 'Sparisce anche il suo unico oggetto.' : 'È vuota.') + ' Potrai annullare per qualche secondo.</span></div>'
+    + '<div class="pannello-azioni">'
+    + '<button class="cta cta--chiara cta--stretta" id="catNonEliminare">No, tienila</button>'
+    + '<button class="cta cta--pericolo" id="catEliminaSi">Elimina</button>'
+    + '</div>';
 }
 
 export function sheetCategoria() {
-  const c = S.categoria;
+  const c = S.categoria, nuova = !c.id;
   return '<div class="sheet"><div class="velo" data-close="1"></div>'
     + '<div class="pannello" role="dialog" aria-modal="true" aria-labelledby="catTitolo">'
     + '<span class="maniglia" aria-hidden="true"></span>'
-    + '<div class="pannello-testa"><h2 id="catTitolo" class="pannello-titolo titoli">Nuova categoria</h2>'
+    + '<div class="pannello-testa"><h2 id="catTitolo" class="pannello-titolo titoli">' + (nuova ? 'Nuova categoria' : 'Modifica categoria') + '</h2>'
     + '<button class="tondo" data-close="1" aria-label="Chiudi">' + ICONA.chiudi + '</button></div>'
 
     + '<div id="catAnteprima" class="tile tile--anteprima" style="background:' + esc(c.colore) + '">' + anteprima(c) + '</div>'
@@ -40,9 +54,11 @@ export function sheetCategoria() {
       + '<input type="radio" name="catColore" value="' + p + '"' + (c.colore === p ? ' checked' : '') + ' aria-label="Colore ' + (i + 1) + '"></label>').join('')
     + '</div></fieldset>'
 
-    + '<div class="pannello-azioni">'
-    + '<button class="cta cta--chiara cta--stretta" data-close="1">Annulla</button>'
-    + '<button id="catSalva" class="cta">Crea</button>'
-    + '</div>'
+    + (c.eliminando ? conferma(c)
+      : '<div class="pannello-azioni">'
+        + '<button class="cta cta--chiara cta--stretta" data-close="1">Annulla</button>'
+        + '<button id="catSalva" class="cta">' + (nuova ? 'Crea' : 'Salva') + '</button>'
+        + '</div>'
+        + (nuova ? '' : '<button class="link-pericolo" id="catElimina">Elimina categoria</button>'))
     + '</div></div>';
 }

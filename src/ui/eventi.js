@@ -1,20 +1,45 @@
 /* Collegamento degli eventi: clic delegati su vista e pannelli, tasto Indietro, Esc. */
 
 import { S } from '../state.js';
-import { coloreLibero, aggiungiCategoria, erroreNomeCategoria, spostaCategoria } from '../core/dati.js';
+import { coloreLibero, aggiungiCategoria, modificaCategoria, eliminaCategoria, erroreNomeCategoria, spostaCategoria } from '../core/dati.js';
+import { categoria } from '../core/calcoli.js';
 import { primoSegno } from '../core/formato.js';
 import { cambia } from '../azioni.js';
 import { scegliCartella, riattivaAccesso, confermaVersione } from '../persistenza.js';
 import { render, renderSheets, vai, apriSheet, sheetAperto, svuotaSheet, chiudiSheet, finitoIndietro } from './render.js';
 import { anteprima } from './sheet/categoria.js';
+import { toast } from './toast.js';
 import { collegaRiordino } from './riordina.js';
 
 /* ---------- categorie ---------- */
 
 function apriNuovaCategoria() {
-  S.categoria = { nome: '', emoji: '⭐', colore: coloreLibero(S.dati), errore: '' };
+  S.categoria = { id: null, nome: '', emoji: '⭐', colore: coloreLibero(S.dati), errore: '', eliminando: false };
   apriSheet();
   document.getElementById('catNome').focus();
+}
+
+function apriModificaCategoria() {
+  const c = categoria(S.dati, S.categoriaId);
+  S.categoria = { id: c.id, nome: c.nome, emoji: c.emoji, colore: c.colore, errore: '', eliminando: false };
+  apriSheet();
+  document.getElementById('catNome').focus();
+}
+
+/* la categoria in modifica può sparire mentre il pannello è aperto (dati caricati dal file, Annulla) */
+function categoriaSparita() {
+  if (!S.categoria.id || categoria(S.dati, S.categoria.id)) return false;
+  chiudiSheet();
+  toast('Questa categoria non c\'è più: i dati sono cambiati nel frattempo.');
+  return true;
+}
+
+/* elimina la categoria aperta e torna alla Home (il pannello e la vista lasciano la cronologia insieme) */
+function eliminaCategoriaAperta() {
+  if (categoriaSparita()) return;
+  const { id } = S.categoria, nome = categoria(S.dati, id).nome;
+  chiudiSheet(2);
+  cambia('Categoria ' + nome + ' eliminata.', (d) => { eliminaCategoria(d, id); });
 }
 
 /* aggiorna l'anteprima della tile senza ridisegnare il pannello (il campo che si sta scrivendo resta attivo) */
@@ -26,15 +51,21 @@ function aggiornaAnteprima() {
 
 function salvaCategoria() {
   const c = S.categoria;
-  c.errore = erroreNomeCategoria(S.dati, c.nome, null);
+  if (c.eliminando || categoriaSparita()) return;
+  c.errore = erroreNomeCategoria(S.dati, c.nome, c.id);
   if (c.errore) {
     renderSheets();
     document.getElementById('catNome').focus();
     return;
   }
-  const valori = { nome: c.nome, emoji: c.emoji, colore: c.colore };
+  const valori = { nome: c.nome, emoji: c.emoji, colore: c.colore }, id = c.id;
   chiudiSheet();
-  cambia('Categoria ' + c.nome.trim() + ' creata.', (d) => { aggiungiCategoria(d, valori); });
+  if (!id) { cambia('Categoria ' + c.nome.trim() + ' creata.', (d) => { aggiungiCategoria(d, valori); }); return; }
+  cambia('Categoria aggiornata.', (d) => {
+    const prima = categoria(d, id);
+    if (prima.nome === valori.nome.trim() && prima.emoji === valori.emoji && prima.colore === valori.colore) return false;
+    modificaCategoria(d, id, valori);
+  });
 }
 
 function sposta(id, posizione) {
@@ -46,11 +77,26 @@ function sposta(id, posizione) {
 
 /* ---------- vista e pannelli ---------- */
 
+/* la vista di una voce della cronologia */
+function mostra(st) {
+  if (st.sheet || (st.vista === S.vista && st.categoriaId === S.categoriaId)) return;
+  S.vista = st.vista;
+  S.categoriaId = st.categoriaId;
+  render();
+}
+
 function clicVista(e) {
   const t = e.target.closest('button, a, [data-vai]');
   if (!t) return;
-  if (t.dataset.vai) vai(t.dataset.vai, t.dataset.categoria || null);
+  if (t.dataset.vai) {
+    if (t.dataset.vai === 'categoria') S.tab = 'oggetti';
+    vai(t.dataset.vai, t.dataset.categoria || null);
+  }
   else if (t.dataset.indietro) history.back();
+  else if (t.dataset.tab) { S.tab = t.dataset.tab; render(); }
+  else if (t.dataset.ordine) { S.ordine = t.dataset.ordine; render(); }
+  else if (t.dataset.verso) { S.verso = t.dataset.verso; render(); }
+  else if (t.id === 'modificaCategoria') apriModificaCategoria();
   else if (t.id === 'nuovaCategoria') apriNuovaCategoria();
   else if (t.id === 'pickDir') scegliCartella();
   else if (t.id === 'riattiva') riattivaAccesso();
@@ -61,6 +107,9 @@ function clicSheet(e) {
   if (t.closest('[data-close]')) chiudiSheet();
   else if (t.closest('#confOk')) confermaVersione();
   else if (t.closest('#catSalva')) salvaCategoria();
+  else if (t.closest('#catElimina')) { S.categoria.eliminando = true; renderSheets(); document.getElementById('catNonEliminare').focus(); }
+  else if (t.closest('#catNonEliminare')) { S.categoria.eliminando = false; renderSheets(); document.getElementById('catElimina').focus(); }
+  else if (t.closest('#catEliminaSi')) eliminaCategoriaAperta();
   else if (t.closest('[data-emoji]')) {
     scegliEmoji(t.closest('[data-emoji]').dataset.emoji);
     document.getElementById('catEmoji').value = '';
@@ -118,13 +167,11 @@ export function collegaEventi() {
 
   // Indietro (anche quello di Android): prima chiude il pannello aperto, poi torna alla vista precedente
   window.addEventListener('popstate', (e) => {
-    if (finitoIndietro()) return;
-    if (sheetAperto()) { svuotaSheet(); return; }
     const st = e.state || { vista: 'home', categoriaId: null };
-    if (st.sheet || (st.vista === S.vista && st.categoriaId === S.categoriaId)) return;
-    S.vista = st.vista;
-    S.categoriaId = st.categoriaId;
-    render();
+    // l'Indietro di chiudiSheet: la vista segue la voce raggiunta (chiudiSheet(2) torna anche di una vista)
+    if (finitoIndietro()) { mostra(st); return; }
+    if (sheetAperto()) { svuotaSheet(); return; }
+    mostra(st);
   });
 
   document.addEventListener('keydown', (e) => {

@@ -2,12 +2,14 @@
 
 import { S } from '../state.js';
 import { orarioBreve } from '../core/formato.js';
+import { categoria } from '../core/calcoli.js';
 import { vistaHome } from './viste/home.js';
+import { vistaCategoria } from './viste/categoria.js';
 import { vistaProfilo } from './viste/profilo.js';
 import { sheetConflitto } from './sheet/conflitto.js';
 import { sheetCategoria } from './sheet/categoria.js';
 
-const VISTE = { home: vistaHome, profilo: vistaProfilo };
+const VISTE = { home: vistaHome, categoria: vistaCategoria, profilo: vistaProfilo };
 
 /* testo e tono dello stato del salvataggio (Profilo) */
 export function statoSalvataggio() {
@@ -30,8 +32,15 @@ export function aggiornaStatoSalvataggio() {
 let ultimaVista = '';
 
 export function render() {
+  // la categoria aperta non c'è più (eliminata, annullata, dati caricati dal file): si torna alla Home,
+  // togliendo anche la sua voce dalla cronologia (altrimenti il prossimo Indietro non farebbe niente)
+  if (S.vista === 'categoria' && !categoria(S.dati, S.categoriaId)) {
+    S.vista = 'home'; S.categoriaId = null;
+    if (!indietroInAttesa && history.state && history.state.vista === 'categoria') { indietroInAttesa = true; history.back(); }
+  }
   const main = document.getElementById('vista');
-  const chiave = S.vista + ':' + (S.categoriaId || '');
+  // cambiare tab è come cambiare pagina: si riparte dall'alto
+  const chiave = S.vista + ':' + (S.categoriaId || '') + (S.vista === 'categoria' ? ':' + S.tab : '');
   const y = main.scrollTop;
   main.innerHTML = (VISTE[S.vista] || vistaHome)();
   // ridisegnare la stessa vista non la riporta in cima
@@ -92,7 +101,8 @@ export function svuotaSheet() {
   renderSheets();
 }
 
-export function chiudiSheet() {
+/* passi = 2: chiude il pannello e torna anche indietro di una vista (es. dopo aver eliminato la categoria aperta) */
+export function chiudiSheet(passi = 1) {
   svuotaSheet();
-  if (!indietroInAttesa && history.state && history.state.sheet) { indietroInAttesa = true; history.back(); }
+  if (!indietroInAttesa && history.state && history.state.sheet) { indietroInAttesa = true; history.go(-passi); }
 }

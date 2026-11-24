@@ -8,6 +8,9 @@ export const S = {
   // navigazione
   vista: 'home',          // 'home' | 'categoria' | 'profilo'
   categoriaId: null,      // categoria aperta
+  tab: 'oggetti',         // categoria: 'oggetti' | 'daProvare' | 'classifica'
+  ordine: 'voto',         // oggetti: 'voto' | 'data'
+  verso: 'migliori',      // classifica: 'migliori' | 'peggiori'
 
   // salvataggio
   dirHandle: null,
@@ -16,6 +19,6 @@ export const S = {
   scrivo: false,
 
   // pannelli aperti
-  categoria: null,        // nuova categoria: { nome, emoji, colore, errore }
+  categoria: null,        // nuova o modifica categoria: { id (null = nuova), nome, emoji, colore, errore, eliminando }
   conflitto: null         // file e telefono diversi: quale versione tenere
 };
