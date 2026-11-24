@@ -4,6 +4,7 @@ import { S } from '../../state.js';
 import { esc, voto, dataBreve } from '../../core/formato.js';
 import { categoria, oggetto, vicini } from '../../core/calcoli.js';
 import { ICONA } from '../componenti.js';
+import { riquadroFoto } from '../immagini.js';
 
 const STELLA = 'M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z';
 export const stellaSvg = (colore) => '<svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><path d="' + STELLA + '" fill="' + colore + '" stroke="#1E1B18" stroke-width="1.4" stroke-linejoin="round"></path></svg>';
@@ -45,6 +46,7 @@ export function sheetScheda() {
     + testaAlta(c, '', 'Chiudi')
     + '<div class="alto-corpo">'
     + '<h2 id="schedaNome" class="scheda-nome titoli" tabindex="-1">' + esc(o.nome) + '</h2>'
+    + (o.foto ? riquadroFoto(o.foto, c.colore, 'foto--grande', 'Foto di ' + o.nome) : '')
     + (o.voto !== null
       ? '<div class="voto-blocco">' + v.sopra + stelle(o.voto) + v.sotto + '</div>'
       : '<div class="avviso">' + ICONA.info + '<span>Ancora <strong>da provare</strong>: quando l\'hai provato, dagli un voto con la matita.</span></div>')

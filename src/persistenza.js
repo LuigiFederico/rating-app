@@ -4,10 +4,12 @@
 
 import { S } from './state.js';
 import { FILENAME, LS_KEY, LS_SYNC } from './core/costanti.js';
-import { normalizza, nomeBackup } from './core/dati.js';
+import { normalizza, nomeBackup, fotoCitate } from './core/dati.js';
 import { decidi, timbro } from './core/sincronia.js';
 import { supportaFS, chiediCartella, permessoAttivo, riattivaPermesso, leggiFile, scriviFile, FileIlleggibile } from './storage/file.js';
 import { salvaHandle, leggiHandle } from './storage/handle-db.js';
+import { elencaFoto, eliminaFoto, copiaFoto, fotoCitateNeiFile } from './storage/foto.js';
+import { fotoOrfane } from './core/calcoli.js';
 import { render, apriSheet, chiudiConflitto, aggiornaStatoSalvataggio } from './ui/render.js';
 import { toast } from './ui/toast.js';
 
@@ -158,6 +160,8 @@ export function confermaVersione() {
         return;
       }
       const tenuta = tieniFile ? c.file : S.dati;
+      // si tengono i dati del telefono in una cartella nuova: le loro foto la seguono
+      const avviso = c.origine === 'nuova' && !tieniFile ? await portaFoto(c.h) : '';
       const backup = await copiaDiSicurezza(c.h, serializza(tieniFile ? S.dati : c.file));
       S.scrivo = true; aggiornaStatoSalvataggio();
       await scriviFile(c.h, serializza(tenuta));
@@ -170,7 +174,7 @@ export function confermaVersione() {
       S.salvato = 'adesso';
       chiudiConflitto();
       render();
-      toast((tieniFile ? 'Caricato ' + FILENAME + '. I dati del telefono sono in ' : 'Tenuti i dati del telefono. Il file di prima è in ') + backup + '.');
+      toast((tieniFile ? 'Caricato ' + FILENAME + '. I dati del telefono sono in ' : 'Tenuti i dati del telefono. Il file di prima è in ') + backup + '.' + avviso);
     } catch (e) {
       c.inCorso = false;
       toast('Non è stato possibile scrivere nella cartella ' + c.h.name + '.');
@@ -193,11 +197,13 @@ export async function scegliCartella() {
       const vuoto = !S.dati.categorie.length && !S.dati.oggetti.length;
       // il telefono ha dati suoi e il file altri: si sceglie prima di collegare
       if (file && !vuoto && !stessiDati(file, S.dati)) { chiediVersione(h, file, 'nuova'); return; }
+      // i dati del telefono vanno nella cartella nuova: le foto si copiano prima di lasciare quella vecchia
+      const avviso = file ? '' : await portaFoto(h);
       S.dirHandle = h;
       S.permessoCartella = true;
       await salvaHandle(h);
       if (file) { await adotta(h, file); toast('Collegato: caricati i dati di ' + FILENAME + ' nella cartella ' + h.name + '.'); }
-      else { salvaLocale(); await scrivi(h); toast('Collegato: la cartella ' + h.name + ' ora contiene ' + FILENAME + '.'); }
+      else { salvaLocale(); await scrivi(h); toast('Collegato: la cartella ' + h.name + ' ora contiene ' + FILENAME + '.' + avviso); }
       render();
     } catch (e) {
       toast('Non è stato possibile usare la cartella ' + h.name + '.');
@@ -205,6 +211,29 @@ export async function scegliCartella() {
       S.scrivo = false; aggiornaStatoSalvataggio();
     }
   });
+}
+
+/* Foto che nessuno cita più (oggetti eliminati, foto cambiate, modifiche non salvate). Cancellare è
+   per sempre, quindi con prudenza: all'avvio, solo con i dati del telefono caricati e allineati al file,
+   tenendo anche le foto citate dal file e dalle copie di sicurezza, e solo file fermi da GIORNI_ORFANE
+   giorni (una foto recente può essere di un altro dispositivo o di una modifica in corso).
+   Durante la sessione le foto restano: "Annulla" le ritrova sempre. */
+async function pulisciFoto() {
+  if (!S.dirHandle || !S.permessoCartella || S.conflitto || !ultimoSalvato || ultimoSalvato !== sync) return;
+  try {
+    const citate = await fotoCitateNeiFile(S.dirHandle);
+    fotoCitate(S.dati).forEach((f) => citate.add(f));
+    await eliminaFoto(S.dirHandle, fotoOrfane(await elencaFoto(S.dirHandle), citate));
+  } catch (e) {}
+}
+
+/* Si passa a un'altra cartella portando i dati del telefono: le loro foto vengono copiate dalla cartella
+   di prima, se è ancora leggibile. Ritorna un avviso da aggiungere al messaggio ('' se tutto bene). */
+async function portaFoto(nuova) {
+  const percorsi = [...fotoCitate(S.dati)];
+  if (!percorsi.length || S.dirHandle === nuova) return '';
+  const mancate = S.dirHandle && S.permessoCartella ? await copiaFoto(S.dirHandle, nuova, percorsi) : percorsi.length;
+  return mancate ? ' ' + mancate + (mancate === 1 ? ' foto è rimasta' : ' foto sono rimaste') + ' nella cartella di prima: copiale a mano in foto/.' : '';
 }
 
 /* Chrome su Android non conserva il permesso tra un avvio e l'altro e lo può chiedere
@@ -219,6 +248,7 @@ function chiediAlPrimoTocco(h) {
     S.permessoCartella = true;
     await inCoda(sincronizza);
     render();
+    inCoda(pulisciFoto); // dopo il disegno, senza farlo aspettare
   };
   document.addEventListener('click', tocco, true);
 }
@@ -247,6 +277,7 @@ export async function avvia() {
         if (await permessoAttivo(h)) {
           S.permessoCartella = true;
           await inCoda(sincronizza);
+          inCoda(pulisciFoto); // in coda, senza far aspettare il primo disegno
         } else {
           S.salvato = 'permesso da riattivare';
           chiediAlPrimoTocco(h);

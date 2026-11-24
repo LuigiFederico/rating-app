@@ -5,6 +5,7 @@ import { esc, voto } from '../../core/formato.js';
 import { categoria, oggetto } from '../../core/calcoli.js';
 import { ICONA } from '../componenti.js';
 import { testaAlta, blocchiVicini, stellaSvg } from './scheda.js';
+import { riquadroFoto, fotoAccessibili } from '../immagini.js';
 
 const MENO = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"></path></svg>';
 
@@ -43,6 +44,23 @@ export function bloccoCampi() {
     + '<button type="button" class="pulsante-chiaro" id="aggiungiCampo">+ Aggiungi campo</button>';
 }
 
+const FOTOCAMERA = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>';
+
+/* la foto (una sola: aggiungi, cambia, togli); senza cartella collegata il pulsante è spento e dice perché */
+export function bloccoFoto() {
+  const b = S.bozza, c = categoria(S.dati, b.categoriaId), puo = fotoAccessibili();
+  const perche = S.dirHandle ? 'Per aggiungere foto riattiva l\'accesso alla cartella dal profilo.' : 'Le foto si salvano nella cartella: collegane una dal profilo per aggiungerle.';
+  return '<div class="foto-riga">'
+    + (b.foto ? '<div class="foto-mini-box">' + riquadroFoto(b.foto, c.colore, 'foto--mini', 'Foto di ' + (b.nome || 'questo oggetto'))
+      + '<button type="button" class="foto-togli" id="togliFoto" aria-label="Rimuovi la foto">' + ICONA.chiudi + '</button></div>' : '')
+    + '<label class="foto-aggiungi' + (puo ? '' : ' foto-aggiungi--spenta') + (b.fotoInCorso ? ' foto-aggiungi--attesa' : '') + '">'
+    + '<input type="file" accept="image/*" id="fotoInput" class="nascosto"' + (puo && !b.fotoInCorso ? '' : ' disabled')
+    + (puo ? '' : ' aria-describedby="fotoPerche"') + '>'
+    + FOTOCAMERA + (b.fotoInCorso ? 'Salvo…' : b.foto ? 'Cambia' : 'Foto') + '</label>'
+    + '</div>'
+    + (puo ? '' : '<p id="fotoPerche" class="nota-piccola">' + perche + '</p>');
+}
+
 function conferma() {
   return '<div class="avviso avviso--pericolo" role="alert">' + ICONA.info + '<span><strong>Eliminare ' + esc(S.bozza.nome.trim() || 'questo oggetto') + '?</strong> Potrai annullare per qualche secondo.</span></div>'
     + '<div class="pannello-azioni"><button class="cta cta--chiara cta--stretta" id="oggNonEliminare">No, tienilo</button>'
@@ -60,6 +78,7 @@ export function sheetModifica() {
     + '<input id="oggNome" class="input-nome titoli" value="' + esc(b.nome) + '" maxlength="80" autocomplete="off" placeholder="Come si chiama?"'
     + (b.errore ? ' aria-invalid="true" aria-describedby="oggErrore"' : '') + '>'
     + (b.errore ? '<p id="oggErrore" class="errore">' + esc(b.errore) + '</p>' : '') + '</div>'
+    + '<div id="bloccoFoto" class="sezione">' + bloccoFoto() + '</div>'
     + '<section class="sezione"><h3 id="votoTitolo" class="sezione-titolo titoli" tabindex="-1">Com\'era?</h3><div id="bloccoVoto" class="voto-blocco">' + bloccoVoto() + '</div></section>'
     + '<section class="sezione"><label for="oggNota" class="lab">NOTA</label>'
     + '<textarea id="oggNota" class="nota nota--modifica" rows="3" placeholder="Com\'era davvero? Due parole bastano.">' + esc(b.nota) + '</textarea></section>'

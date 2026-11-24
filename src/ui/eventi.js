@@ -3,7 +3,7 @@
 import { S } from '../state.js';
 import {
   coloreLibero, aggiungiCategoria, modificaCategoria, eliminaCategoria, erroreNomeCategoria, spostaCategoria,
-  bozzaNuova, bozzaDaOggetto, bozzaPronta, salvaOggetto, eliminaOggetto
+  bozzaNuova, bozzaDaOggetto, bozzaPronta, salvaOggetto, eliminaOggetto, nuovoId
 } from '../core/dati.js';
 import { categoria, oggetto } from '../core/calcoli.js';
 import { primoSegno } from '../core/formato.js';
@@ -11,7 +11,9 @@ import { cambia } from '../azioni.js';
 import { scegliCartella, riattivaAccesso, confermaVersione } from '../persistenza.js';
 import { render, renderSheets, vai, apriSheet, sheetAperto, svuotaSheet, chiudiSheet, chiudiUnLivello, finitoIndietro } from './render.js';
 import { anteprima } from './sheet/categoria.js';
-import { bloccoVoto, bloccoCampi } from './sheet/modifica.js';
+import { bloccoVoto, bloccoCampi, bloccoFoto } from './sheet/modifica.js';
+import { caricaImmagini } from './immagini.js';
+import { riduci, scriviFoto } from '../storage/foto.js';
 import { toast } from './toast.js';
 import { collegaRiordino } from './riordina.js';
 
@@ -111,6 +113,7 @@ function tabPer(voto) {
 function salvaBozza() {
   const b = S.bozza;
   if (b.eliminando) return;
+  if (b.fotoInCorso) { toast('Un attimo: sto salvando la foto.'); return; }
   if (!bozzaPronta(b)) {
     b.errore = 'Scrivi un nome.';
     renderSheets();
@@ -154,6 +157,31 @@ function scegliVoto(valore) {
   document.getElementById('bloccoVoto').innerHTML = bloccoVoto();
   const b = document.querySelector('#bloccoVoto [data-voto="' + valore + '"]');
   if (b) b.focus({ preventScroll: true });
+}
+
+/* La foto si riduce e si scrive subito in foto/; la bozza ne tiene il percorso. Se poi non si salva,
+   il file resta orfano e sparisce al prossimo avvio (vedi eliminaOrfane). */
+async function aggiungiFoto(file) {
+  const b = S.bozza;
+  b.fotoInCorso = true;
+  ridisegnaFoto();
+  try {
+    const percorso = await scriviFoto(S.dirHandle, nuovoId('f') + '.jpg', await riduci(file));
+    b.foto = percorso;
+  } catch (err) {
+    toast('Non è stato possibile salvare la foto: ' + (err && err.name === 'InvalidStateError'
+      ? 'formato non supportato da questo browser (prova JPEG o PNG).' : 'riprova o ricollega la cartella.'));
+  }
+  b.fotoInCorso = false;
+  // il pannello può essere stato chiuso nel frattempo
+  if (S.bozza === b) ridisegnaFoto();
+}
+
+function ridisegnaFoto() {
+  const el = document.getElementById('bloccoFoto');
+  if (!el) return;
+  el.innerHTML = bloccoFoto();
+  caricaImmagini(el);
 }
 
 function ridisegnaCampi(focus) {
@@ -201,6 +229,7 @@ function clicSheet(e) {
   else if (t.closest('#aggiungiCampo')) { S.bozza.campi.push({ nome: '', valore: '' }); ridisegnaCampi('#bloccoCampi .f:last-child .campo-nome'); }
   else if (t.closest('[data-rimuovi]')) { S.bozza.campi.splice(Number(t.closest('[data-rimuovi]').dataset.rimuovi), 1); ridisegnaCampi('#aggiungiCampo'); }
   else if (t.closest('#oggSalva')) salvaBozza();
+  else if (t.closest('#togliFoto')) { S.bozza.foto = null; ridisegnaFoto(); document.getElementById('fotoInput').focus(); }
   else if (t.closest('#oggElimina')) { S.bozza.eliminando = true; renderSheets(); document.getElementById('oggNonEliminare').focus(); }
   else if (t.closest('#oggNonEliminare')) { S.bozza.eliminando = false; renderSheets(); document.getElementById('oggElimina').focus(); }
   else if (t.closest('#oggEliminaSi')) eliminaOggettoAperto();
@@ -256,6 +285,8 @@ function cambioSheet(e) {
     renderSheets();
     // il pannello è stato ridisegnato: il focus torna sulla scelta, per chi usa la tastiera
     document.querySelector('input[name="versione"][value="' + t.value + '"]').focus();
+  } else if (t.id === 'fotoInput' && S.bozza && t.files && t.files[0]) {
+    aggiungiFoto(t.files[0]);
   } else if (t.name === 'catColore' && S.categoria) {
     S.categoria.colore = t.value;
     aggiornaAnteprima();

@@ -8,6 +8,8 @@ export const VERSIONE_DATI = 1;
 /* lato lungo massimo delle foto salvate, in pixel, e qualità JPEG */
 export const LATO_FOTO = 1200;
 export const QUALITA_FOTO = 0.85;
+/* una foto non citata dai dati si toglie solo dopo questi giorni: può essere di un altro dispositivo o di una modifica in corso */
+export const GIORNI_ORFANE = 7;
 
 /* tavolozza delle categorie: i pastelli del design, più tre dello stesso tono */
 export const PALETTE = ['#F6D9DC', '#D7EADC', '#EBDCC8', '#FBE8B4', '#DCE1F3', '#E6DCF0', '#D4EAEA', '#F8DDC9'];

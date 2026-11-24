@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   datiVuoti, normalizza, votoValido, nomeBackup, erroreNomeCategoria, coloreLibero,
   aggiungiCategoria, modificaCategoria, eliminaCategoria, spostaCategoria,
-  bozzaNuova, bozzaDaOggetto, bozzaPronta, salvaOggetto, eliminaOggetto, fotoCitate
+  bozzaNuova, bozzaDaOggetto, bozzaPronta, salvaOggetto, eliminaOggetto, fotoCitate, percorsoFoto
 } from '../src/core/dati.js';
 import { PALETTE } from '../src/core/costanti.js';
 
@@ -171,4 +171,10 @@ test('eliminaOggetto e fotoCitate', () => {
   eliminaOggetto(d, a.id);
   assert.deepEqual(d.oggetti.map((o) => o.nome), ['B']);
   assert.equal(fotoCitate(d).size, 0);
+});
+
+test('percorsoFoto accetta solo foto/<nome>', () => {
+  assert.equal(percorsoFoto('foto/a.jpg'), 'foto/a.jpg');
+  assert.equal(percorsoFoto(' ./foto/a.jpg '), 'foto/a.jpg');
+  for (const p of ['a.jpg', 'Foto/a.jpg', 'foto/', 'foto/x/a.jpg', 'foto/..', '../foto/a.jpg', 'foto\\a.jpg', '', null, 3]) assert.equal(percorsoFoto(p), null, String(p));
 });

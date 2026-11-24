@@ -1,5 +1,7 @@
 /* Elenchi, classifiche e contatori calcolati dai dati. Funzioni pure. */
 
+import { LATO_FOTO, GIORNI_ORFANE, CARTELLA_FOTO } from './costanti.js';
+
 export function categoria(dati, id) {
   return dati.categorie.find((c) => c.id === id) || null;
 }
@@ -61,4 +63,17 @@ export function contatori(dati, oggi = new Date()) {
     return d.getFullYear() === oggi.getFullYear() && d.getMonth() === oggi.getMonth();
   }).length;
   return { recensioni: votati.length, categorie: dati.categorie.length, mese };
+}
+
+/* Foto: misure ridotte al lato lungo massimo, mantenendo le proporzioni; mai ingrandite. */
+export function misureRidotte(w, h, lato = LATO_FOTO) {
+  const k = Math.min(1, lato / Math.max(w, h));
+  return { w: Math.max(1, Math.round(w * k)), h: Math.max(1, Math.round(h * k)) };
+}
+
+/* Foto da togliere: i .jpg di foto/ che nessun documento cita e che non sono stati toccati negli ultimi
+   GIORNI_ORFANE giorni. foto: [{ nome, modificato (ms) }]; citate: Set di percorsi 'foto/<nome>'. */
+export function fotoOrfane(foto, citate, ora = Date.now(), giorni = GIORNI_ORFANE) {
+  const limite = ora - giorni * 86400000;
+  return foto.filter((f) => f.nome.endsWith('.jpg') && !citate.has(CARTELLA_FOTO + '/' + f.nome) && f.modificato < limite).map((f) => f.nome);
 }

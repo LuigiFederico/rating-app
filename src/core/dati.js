@@ -1,7 +1,7 @@
 /* Forma del documento rating-data.json (vedi README) e modifiche ai dati. Le modifiche
    cambiano il documento ricevuto sul posto, senza salvare né disegnare. */
 
-import { FILENAME, VERSIONE_DATI, PALETTE } from './costanti.js';
+import { FILENAME, VERSIONE_DATI, PALETTE, CARTELLA_FOTO } from './costanti.js';
 
 export function datiVuoti() {
   return { versione: VERSIONE_DATI, aggiornato: new Date().toISOString(), categorie: [], oggetti: [] };
@@ -15,6 +15,13 @@ export function votoValido(v) {
 }
 
 /* testo da un valore del file: anche numeri e sì/no (un "2018" scritto a mano senza virgolette) */
+/* percorso di una foto: 'foto/<nome>' (anche scritto a mano come './foto/<nome>'); altrimenti null */
+export function percorsoFoto(p) {
+  if (typeof p !== 'string') return null;
+  const m = p.trim().replace(/^\.\//, '').match(new RegExp('^' + CARTELLA_FOTO + '/([^/\\\\]+)$'));
+  return m && m[1] !== '.' && m[1] !== '..' ? CARTELLA_FOTO + '/' + m[1] : null;
+}
+
 const testo = (s) => (typeof s === 'string' ? s : typeof s === 'number' || typeof s === 'boolean' ? String(s) : '');
 
 /* tiene il primo elemento per ogni id (un file modificato a mano può ripeterli) */
@@ -33,7 +40,7 @@ function normalizzaOggetto(o, idCategorie) {
     voto: votoValido(o.voto),
     nota: testo(o.nota),
     campi: Array.isArray(o.campi) ? o.campi.filter((c) => c && testo(c.nome)).map((c) => ({ nome: testo(c.nome), valore: testo(c.valore) })) : [],
-    foto: typeof o.foto === 'string' && o.foto ? o.foto : null,
+    foto: percorsoFoto(o.foto),
     // sempre in UTC: gli ordinamenti confrontano le date come testo
     creato: new Date(isNaN(creato) ? 0 : creato).toISOString()
   };

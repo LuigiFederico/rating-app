@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { categoria, oggetto, oggettiDi, perVoto, perData, daProvare, classifica, vicini, conteggio, contatori } from '../src/core/calcoli.js';
+import { categoria, oggetto, oggettiDi, perVoto, perData, daProvare, classifica, vicini, conteggio, contatori, misureRidotte, fotoOrfane } from '../src/core/calcoli.js';
 
 /* due categorie; creato in ordine crescente di giorno di novembre */
 function dati() {
@@ -71,4 +71,24 @@ test('conteggio separa votati e da provare', () => {
 test('contatori del profilo', () => {
   assert.deepEqual(contatori(dati(), new Date(2026, 10, 24)), { recensioni: 6, categorie: 2, mese: 6 });
   assert.deepEqual(contatori(dati(), new Date(2026, 11, 1)), { recensioni: 6, categorie: 2, mese: 0 });
+});
+
+test('misureRidotte: lato lungo a 1200, proporzioni mantenute, mai ingrandite', () => {
+  assert.deepEqual(misureRidotte(4032, 3024), { w: 1200, h: 900 });   // foto orizzontale del telefono
+  assert.deepEqual(misureRidotte(3024, 4032), { w: 900, h: 1200 });   // verticale
+  assert.deepEqual(misureRidotte(800, 600), { w: 800, h: 600 });      // già piccola
+  assert.deepEqual(misureRidotte(5000, 2), { w: 1200, h: 1 });        // mai zero
+});
+
+test('fotoOrfane: solo .jpg non citate e vecchie di almeno 7 giorni', () => {
+  const ora = Date.UTC(2026, 10, 24);
+  const giorni = (n) => ora - n * 86400000;
+  const foto = [
+    { nome: 'citata.jpg', modificato: giorni(30) },
+    { nome: 'vecchia.jpg', modificato: giorni(8) },
+    { nome: 'recente.jpg', modificato: giorni(2) },   // forse di un altro dispositivo o di una modifica in corso
+    { nome: 'appunti.txt', modificato: giorni(30) }    // non è una foto dell'app
+  ];
+  assert.deepEqual(fotoOrfane(foto, new Set(['foto/citata.jpg']), ora), ['vecchia.jpg']);
+  assert.deepEqual(fotoOrfane([], new Set(), ora), []);
 });

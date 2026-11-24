@@ -10,6 +10,7 @@ import { sheetConflitto } from './sheet/conflitto.js';
 import { sheetCategoria } from './sheet/categoria.js';
 import { sheetScheda } from './sheet/scheda.js';
 import { sheetModifica } from './sheet/modifica.js';
+import { caricaImmagini } from './immagini.js';
 
 const VISTE = { home: vistaHome, categoria: vistaCategoria, profilo: vistaProfilo };
 
@@ -79,6 +80,7 @@ export function renderSheets() {
   ultimoSheet = quale;
   host.innerHTML = quale === 'conflitto' ? sheetConflitto() : quale === 'categoria' ? sheetCategoria()
     : quale === 'bozza' ? sheetModifica() : quale === 'scheda' ? sheetScheda() : '';
+  caricaImmagini(host);
 }
 
 export function sheetAperto() {
