@@ -4,6 +4,11 @@
    Fallback: localStorage + export manuale. */
 
 import './styles/index.css';
+import { collegaEventi } from './ui/eventi.js';
+import { avvia } from './persistenza.js';
+
+collegaEventi();
+avvia();
 
 // in sviluppo niente service worker: servirebbe file vecchi dalla cache
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

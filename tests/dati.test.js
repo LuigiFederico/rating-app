@@ -71,8 +71,8 @@ test('normalizza conserva un documento già in forma', () => {
   assert.deepEqual(normalizza(JSON.parse(JSON.stringify(d))), d);
 });
 
-test('nomeBackup mette la data prima di .json', () => {
-  assert.equal(nomeBackup('2026-11-24'), 'rating-data.backup-2026-11-24.json');
+test('nomeBackup mette il timbro prima di .json', () => {
+  assert.equal(nomeBackup('2026-11-24-143205'), 'rating-data.backup-2026-11-24-143205.json');
 });
 
 test('erroreNomeCategoria vuole un nome non vuoto e non ripetuto', () => {

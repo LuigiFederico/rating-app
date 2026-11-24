@@ -53,9 +53,9 @@ export function normalizza(d) {
   return out;
 }
 
-/* Copia di sicurezza accanto al file: 'rating-data.backup-2026-11-24.json' */
-export function nomeBackup(giorno) {
-  return FILENAME.replace(/\.json$/, '.backup-' + giorno + '.json');
+/* Copia di sicurezza accanto al file: 'rating-data.backup-2026-11-24-143205.json' (vedi timbro in sincronia.js) */
+export function nomeBackup(timbro) {
+  return FILENAME.replace(/\.json$/, '.backup-' + timbro + '.json');
 }
 
 export function nuovoId(prefisso) {

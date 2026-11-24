@@ -1,6 +1,7 @@
 export const FILENAME = 'rating-data.json';
 export const CARTELLA_FOTO = 'foto';
 export const LS_KEY = 'rating-app-data';
+export const LS_SYNC = 'rating-app-sync'; // 'aggiornato' dell'ultima versione uguale sul telefono e nel file
 
 export const VERSIONE_DATI = 1;
 

@@ -1,0 +1,26 @@
+/* Viste a tutto schermo: Home e Profilo. */
+
+/* ---------- Home ---------- */
+.home { display: flex; flex-direction: column; min-height: 100%; padding-bottom: calc(24px + var(--sicuro-basso)); }
+.home-testa {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: calc(20px + var(--sicuro-alto)) 16px 0 20px;
+}
+.home-titolo { font-size: 40px; line-height: 44px; letter-spacing: -.6px; }
+.home-profilo {
+  width: 44px; height: 44px; border-radius: 22px; background: var(--inchiostro); color: var(--carta);
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ---------- Profilo ---------- */
+.profilo {
+  display: flex; flex-direction: column; gap: 14px; min-height: 100%;
+  padding: calc(12px + var(--sicuro-alto)) 20px calc(32px + var(--sicuro-basso));
+}
+.profilo-chiudi { align-self: flex-end; margin-right: -10px; }
+.profilo-testa { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
+.profilo-avatar {
+  width: 64px; height: 64px; border-radius: 32px; background: var(--inchiostro); color: var(--carta);
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
+.profilo-titolo { font-size: 26px; }
