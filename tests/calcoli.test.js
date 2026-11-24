@@ -45,19 +45,22 @@ test('classifica migliori e peggiori', () => {
   assert.deepEqual(classifica({ categorie: [], oggetti: [] }, 'v'), []);
 });
 
-test('vicini: il primo sopra e il primo sotto, esclusi l\'oggetto stesso e i pari voto', () => {
+test('vicini: chi sta subito sopra e subito sotto, nell\'ordine della classifica', () => {
   const d = dati();
-  assert.deepEqual(nomi(Object.values(vicini(d, 'v', 3.5, 'lugana'))), ['chianti', 'prosecco']);
-  // 4: sopra c'è barolo; chianti ed etna hanno lo stesso voto e non contano
-  const v4 = vicini(d, 'v', 4, 'nuovo');
-  assert.equal(v4.sopra.id, 'barolo');
-  assert.equal(v4.sotto.id, 'lugana');
-  assert.equal(vicini(d, 'v', 5, 'nuovo').sopra, null);
-  assert.equal(vicini(d, 'v', 0.5, 'nuovo').sotto, null);
-  // a parità di voto, sia sopra sia sotto, il più recente: chianti (15) prima di etna (10)
-  assert.equal(vicini(d, 'v', 4.5, 'barolo').sotto.id, 'chianti');
-  // le altre categorie non c'entrano
-  assert.deepEqual(vicini(d, 'k', 2, 'moka'), { sopra: null, sotto: null });
+  const nov = (g) => new Date(2026, 10, g, 12).toISOString();
+  // lugana rivotata 3,5 resta al suo posto: sopra etna (4, più vecchio dei 4), sotto prosecco
+  assert.deepEqual(nomi(Object.values(vicini(d, 'v', 3.5, 'lugana', nov(21)))), ['etna', 'prosecco']);
+  // un nuovo 4, il più recente: è il primo dei 4 (sopra barolo, sotto chianti, anche se ha lo stesso voto)
+  assert.deepEqual(nomi(Object.values(vicini(d, 'v', 4, 'nuovo', nov(24)))), ['barolo', 'chianti']);
+  // un 4 più vecchio di tutti: è l'ultimo dei 4 (sopra etna, sotto lugana)
+  assert.deepEqual(nomi(Object.values(vicini(d, 'v', 4, 'nuovo', nov(1)))), ['etna', 'lugana']);
+  assert.equal(vicini(d, 'v', 5, 'nuovo', nov(24)).sopra, null);
+  assert.equal(vicini(d, 'v', 0.5, 'nuovo', nov(24)).sotto, null);
+  // l'unico altro ha lo stesso voto: non si dice "il tuo migliore e il tuo peggiore" insieme
+  const due = { categorie: [{ id: 'z' }], oggetti: [{ id: 'a', categoriaId: 'z', voto: 4, creato: nov(1) }] };
+  assert.deepEqual(nomi(Object.values(vicini(due, 'z', 4, 'nuovo', nov(24))).filter(Boolean)), ['a']);
+  // gli oggetti da provare e le altre categorie non c'entrano
+  assert.deepEqual(vicini(d, 'k', 2, 'moka', nov(23)), { sopra: null, sotto: null });
 });
 
 test('conteggio separa votati e da provare', () => {

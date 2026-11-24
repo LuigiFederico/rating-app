@@ -8,7 +8,7 @@ import { normalizza, nomeBackup } from './core/dati.js';
 import { decidi, timbro } from './core/sincronia.js';
 import { supportaFS, chiediCartella, permessoAttivo, riattivaPermesso, leggiFile, scriviFile, FileIlleggibile } from './storage/file.js';
 import { salvaHandle, leggiHandle } from './storage/handle-db.js';
-import { render, apriSheet, chiudiSheet, aggiornaStatoSalvataggio } from './ui/render.js';
+import { render, apriSheet, chiudiConflitto, aggiornaStatoSalvataggio } from './ui/render.js';
 import { toast } from './ui/toast.js';
 
 let ultimoSalvato = ''; // 'aggiornato' dell'ultimo salvataggio su questo telefono ('' = mai)
@@ -168,7 +168,7 @@ export function confermaVersione() {
       S.permessoCartella = true;
       segnaSync(tenuta.aggiornato);
       S.salvato = 'adesso';
-      chiudiSheet();
+      chiudiConflitto();
       render();
       toast((tieniFile ? 'Caricato ' + FILENAME + '. I dati del telefono sono in ' : 'Tenuti i dati del telefono. Il file di prima è in ') + backup + '.');
     } catch (e) {

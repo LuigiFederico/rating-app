@@ -19,6 +19,8 @@ export const S = {
   scrivo: false,
 
   // pannelli aperti
+  scheda: null,           // id dell'oggetto mostrato
+  bozza: null,            // oggetto in modifica: bozzaNuova/bozzaDaOggetto + { daScheda, errore, eliminando }
   categoria: null,        // nuova o modifica categoria: { id (null = nuova), nome, emoji, colore, errore, eliminando }
   conflitto: null         // file e telefono diversi: quale versione tenere
 };

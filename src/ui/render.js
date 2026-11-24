@@ -2,12 +2,14 @@
 
 import { S } from '../state.js';
 import { orarioBreve } from '../core/formato.js';
-import { categoria } from '../core/calcoli.js';
+import { categoria, oggetto } from '../core/calcoli.js';
 import { vistaHome } from './viste/home.js';
 import { vistaCategoria } from './viste/categoria.js';
 import { vistaProfilo } from './viste/profilo.js';
 import { sheetConflitto } from './sheet/conflitto.js';
 import { sheetCategoria } from './sheet/categoria.js';
+import { sheetScheda } from './sheet/scheda.js';
+import { sheetModifica } from './sheet/modifica.js';
 
 const VISTE = { home: vistaHome, categoria: vistaCategoria, profilo: vistaProfilo };
 
@@ -63,17 +65,24 @@ export function vai(vista, categoriaId = null) {
 let ultimoSheet = '';
 
 export function renderSheets() {
-  // il conflitto passa davanti a tutto: finché non si sceglie, il resto aspetta
-  const quale = S.conflitto ? 'conflitto' : S.categoria ? 'categoria' : '';
+  // un oggetto o una categoria spariti mentre il pannello era aperto (dati caricati dal file, Annulla)
+  const aperto = sheetAperto();
+  if (S.scheda && !oggetto(S.dati, S.scheda)) S.scheda = null;
+  if (S.bozza && (!categoria(S.dati, S.bozza.categoriaId) || (S.bozza.id && !oggetto(S.dati, S.bozza.id)))) S.bozza = null;
+  // se si è chiuso l'ultimo pannello, va via anche la sua voce (altrimenti il prossimo Indietro non farebbe niente)
+  if (aperto && !sheetAperto() && !indietroInAttesa && history.state && history.state.sheet) { indietroInAttesa = true; history.back(); }
+  // il conflitto passa davanti a tutto: finché non si sceglie, il resto aspetta; la modifica copre la scheda
+  const quale = S.conflitto ? 'conflitto' : S.categoria ? 'categoria' : S.bozza ? 'bozza' : S.scheda ? 'scheda' : '';
   const host = document.getElementById('sheets');
   // ridisegnare lo stesso pannello non ne ripete l'animazione di entrata
   host.dataset.fermo = quale && quale === ultimoSheet ? 1 : 0;
   ultimoSheet = quale;
-  host.innerHTML = quale === 'conflitto' ? sheetConflitto() : quale === 'categoria' ? sheetCategoria() : '';
+  host.innerHTML = quale === 'conflitto' ? sheetConflitto() : quale === 'categoria' ? sheetCategoria()
+    : quale === 'bozza' ? sheetModifica() : quale === 'scheda' ? sheetScheda() : '';
 }
 
 export function sheetAperto() {
-  return !!(S.conflitto || S.categoria);
+  return !!(S.conflitto || S.categoria || S.bozza || S.scheda);
 }
 
 // chiudiSheet ha chiamato history.back() e il popstate non è ancora arrivato
@@ -98,7 +107,24 @@ export function finitoIndietro() {
 export function svuotaSheet() {
   S.conflitto = null;
   S.categoria = null;
+  S.bozza = null;
+  S.scheda = null;
   renderSheets();
+}
+
+/* Chiude solo il pannello in cima, se sotto ne resta un altro: il conflitto sopra una modifica o una scheda,
+   la modifica aperta dalla scheda. La voce nella cronologia resta (è di chi sta sotto). false se non c'era niente sotto. */
+export function chiudiUnLivello() {
+  if (S.conflitto && (S.categoria || S.bozza || S.scheda)) S.conflitto = null;
+  else if (!S.conflitto && !S.categoria && S.bozza && S.bozza.daScheda && S.scheda) S.bozza = null;
+  else return false;
+  renderSheets();
+  return true;
+}
+
+/* chiude il pannello del conflitto, lasciando quello che c'era sotto */
+export function chiudiConflitto() {
+  if (!chiudiUnLivello()) chiudiSheet();
 }
 
 /* passi = 2: chiude il pannello e torna anche indietro di una vista (es. dopo aver eliminato la categoria aperta) */

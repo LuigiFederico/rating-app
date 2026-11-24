@@ -44,3 +44,89 @@
 .colore:has(input:focus-visible) { outline: 2px solid var(--accento); outline-offset: 2px; }
 .tile--anteprima { height: 88px; box-shadow: none; pointer-events: none; }
 .tile--anteprima .big { width: 56px; height: 56px; font-size: 32px; }
+
+/* ---------- pannelli alti: Scheda e Modifica (dal design: velo grigio, foglio da 58px sotto il bordo) ---------- */
+.sheet--alto { justify-content: flex-end; }
+.velo--alto { background: rgba(30, 27, 24, .5); }
+.pannello--alto {
+  height: calc(100% - 58px - var(--sicuro-alto)); max-height: none; padding: 0; gap: 0; overflow: hidden;
+}
+.alto-testa { display: flex; flex-direction: column; padding: 10px 20px 6px; flex: none; }
+.alto-barra { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-right: -10px; }
+.alto-sinistra { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.chip-cat { display: flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 18px; font: 600 14px var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-modifica {
+  display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 14px;
+  background: var(--inchiostro); color: var(--carta); font: 600 12px var(--font); white-space: nowrap;
+}
+.alto-corpo {
+  flex: 1; overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: 18px; padding: 0 20px calc(110px + var(--sicuro-basso));
+}
+.alto-corpo::-webkit-scrollbar { display: none; }
+.alto-piede {
+  flex: none; display: flex; gap: 10px; align-items: center; padding: 12px 20px calc(20px + var(--sicuro-basso));
+  border-top: 1px solid var(--linea); background: var(--carta);
+}
+/* con il piede fisso il corpo non ha bisogno dello spazio per il pulsante tondo */
+.alto-piede ~ .alto-corpo, .pannello--alto:has(.alto-piede) .alto-corpo { padding-bottom: 24px; }
+.fab--pannello { position: absolute; right: 20px; bottom: calc(34px + var(--sicuro-basso)); }
+
+.scheda-nome { font-size: 28px; line-height: 1.1; overflow-wrap: anywhere; }
+.scheda-data { font-size: 12px; color: var(--secondario); text-align: center; }
+.sezione { display: flex; flex-direction: column; gap: 8px; }
+.sezione-titolo { font-size: 18px; font-weight: 700; }
+.nota { margin: 0; padding: 14px 16px; border-radius: 20px; background: var(--superficie); font: 400 15px/1.45 var(--font); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* dettagli: righe chiave/valore in una card bianca */
+.card { margin: 0; border-radius: 20px; background: var(--superficie); padding: 4px 16px; }
+.f { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 46px; border-bottom: 1px solid var(--linea); font-size: 15px; }
+.f:last-child { border-bottom: 0; }
+.f dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+.k { color: var(--secondario); font-size: 14px; flex: none; max-width: 45%; overflow-wrap: anywhere; }
+.vuoto-valore { color: var(--vuoto); }
+
+/* voto: vicini sopra e sotto, cinque stelle */
+.voto-blocco { display: flex; flex-direction: column; gap: 8px; }
+.vicino { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 12px; border-radius: 12px; background: var(--tenue); font-size: 13px; color: var(--secondario); }
+.vicino-nome { flex: 1; min-width: 0; color: var(--inchiostro); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vicino .titoli { font-size: 16px; color: var(--inchiostro); }
+.stelle { display: flex; justify-content: center; align-items: center; gap: 4px; padding: 4px 0; }
+.stella { position: relative; width: 44px; height: 44px; flex: none; }
+.stella svg { display: block; position: absolute; left: 0; top: 0; }
+.stella-piena { position: absolute; left: 0; top: 0; height: 44px; overflow: hidden; }
+.stelle--scelta { gap: 2px; }
+.stella--scelta { width: 50px; height: 50px; transition: transform .18s cubic-bezier(.34, 1.8, .64, 1); }
+.stella--scelta > svg, .stella--scelta > .stella-piena { left: 3px; top: 3px; }
+.stella-piena svg { left: 0; top: 0; }
+.stella--scelta:active { transform: scale(1.2); }
+.stella-meta { position: absolute; top: 0; bottom: 0; width: 50%; }
+.stella-meta--sx { left: 0; }
+.stella-meta--dx { right: 0; }
+.non-so {
+  width: 52px; height: 52px; margin-left: 8px; flex: none; border-radius: 26px; border: 2px dashed var(--tratteggio);
+  font: 800 24px/1 var(--titoli); display: flex; align-items: center; justify-content: center;
+}
+.non-so[aria-pressed="true"] { background: var(--inchiostro); color: var(--carta); border: 2px solid var(--inchiostro); }
+.avviso--stretto { padding: 10px 12px; border-radius: 12px; font-size: 13px; }
+
+/* modifica: nome grande, nota, campi liberi */
+.input-nome { width: 100%; padding: 2px 0; border: 0; outline: 0; background: transparent; font-size: 28px; border-bottom: 2px solid transparent; }
+.input-nome:focus { border-bottom-color: var(--inchiostro); }
+.input-nome::placeholder { color: var(--vuoto); }
+.input-nome[aria-invalid="true"] { border-bottom-color: var(--pericolo); }
+.nota--modifica { border: 0; outline: 0; resize: none; color: var(--inchiostro); }
+.nota--modifica:focus { box-shadow: inset 0 0 0 1.5px var(--inchiostro); }
+.campi-liberi { display: flex; flex-direction: column; gap: 10px; }
+.f--modifica { min-height: 48px; }
+.rm { width: 28px; height: 28px; flex: none; border-radius: 14px; background: var(--pericolo); display: flex; align-items: center; justify-content: center; margin-left: -4px; position: relative; }
+.rm::after { content: ''; position: absolute; inset: -8px; }
+.campo-nome, .campo-valore { min-width: 0; border: 0; outline: 0; background: transparent; font: 500 15px var(--font); padding: 12px 0; }
+.campo-nome { width: 96px; flex: none; color: var(--secondario); font-size: 14px; }
+.campo-valore { flex: 1; text-align: right; }
+.campo-nome::placeholder, .campo-valore::placeholder { color: var(--vuoto); }
+.campo-nome:focus, .campo-valore:focus { box-shadow: 0 2px 0 var(--inchiostro); }
+.pulsante-chiaro {
+  align-self: flex-start; height: 44px; padding: 0 16px; border-radius: 22px; border: 1.5px solid var(--bordo);
+  background: var(--superficie); font: 600 14px var(--font);
+}

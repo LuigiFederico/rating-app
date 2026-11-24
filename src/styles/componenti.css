@@ -48,6 +48,8 @@
   display: flex; justify-content: center; padding: 0 16px; pointer-events: none;
 }
 .toast-host[hidden] { display: none; }
+/* con un pannello alto aperto il toast sale sopra i suoi pulsanti in fondo */
+body:has(.pannello--alto) .toast-host { bottom: calc(112px + var(--sicuro-basso)); }
 .toast {
   display: flex; align-items: center; gap: 12px; width: 100%; max-width: calc(var(--colonna) - 32px);
   padding: 14px 18px; border-radius: 20px; background: var(--inchiostro); color: var(--carta);

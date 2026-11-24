@@ -37,14 +37,14 @@ export function classifica(dati, categoriaId, verso = 'migliori') {
   return lista.sort((a, b) => segno * (b.voto - a.voto) || piuRecente(a, b));
 }
 
-/* Nella tua classifica della categoria, i più vicini al voto v: il primo con voto più alto
-   e il primo con voto più basso (null se non ce ne sono; a parità di voto il più recente).
-   escludiId: l'oggetto che si sta votando. */
-export function vicini(dati, categoriaId, v, escludiId) {
-  const altri = oggettiDi(dati, categoriaId).filter((o) => o.voto !== null && o.id !== escludiId);
-  const sopra = altri.filter((o) => o.voto > v).sort((a, b) => a.voto - b.voto || piuRecente(a, b))[0] || null;
-  const sotto = perVoto(altri.filter((o) => o.voto < v))[0] || null;
-  return { sopra, sotto };
+/* Chi sta subito sopra e subito sotto nella tua classifica della categoria (null se nessuno), per un
+   oggetto con voto v e data di creazione 'creato': stesso ordine della classifica, quindi a parità
+   di voto conta la data. escludiId: l'oggetto che si sta votando (la sua posizione vecchia non conta). */
+export function vicini(dati, categoriaId, v, escludiId, creato) {
+  const io = { id: escludiId, voto: v, creato };
+  const lista = perVoto(oggettiDi(dati, categoriaId).filter((o) => o.id !== escludiId).concat(io));
+  const i = lista.indexOf(io);
+  return { sopra: lista[i - 1] || null, sotto: lista[i + 1] || null };
 }
 
 export function conteggio(dati, categoriaId) {
