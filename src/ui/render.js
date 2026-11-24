@@ -20,7 +20,7 @@ export function statoSalvataggio() {
     : S.salvato.startsWith('errore') ? ['errore', 'Errore di salvataggio']
     : S.salvato === 'da decidere' ? ['errore', 'Versione da scegliere']
     : S.dirHandle && !S.permessoCartella ? ['errore', 'Accesso scaduto']
-    : S.dirHandle ? ['ok', S.salvato === 'mai' ? 'Collegato' : 'Salvato ' + orarioBreve(S.dati.aggiornato)]
+    : S.dirHandle ? ['ok', S.scrittoAlle ? 'Salvato ' + orarioBreve(S.scrittoAlle) : S.salvato === 'dal file' ? 'Caricato dal file' : 'Collegato']
     : ['locale', 'Solo su questo telefono'];
 }
 

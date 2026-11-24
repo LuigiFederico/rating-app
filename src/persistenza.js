@@ -8,7 +8,7 @@ import { normalizza, nomeBackup, fotoCitate } from './core/dati.js';
 import { decidi, timbro } from './core/sincronia.js';
 import { supportaFS, chiediCartella, permessoAttivo, riattivaPermesso, leggiFile, scriviFile, FileIlleggibile } from './storage/file.js';
 import { salvaHandle, leggiHandle } from './storage/handle-db.js';
-import { elencaFoto, eliminaFoto, copiaFoto, fotoCitateNeiFile } from './storage/foto.js';
+import { elencaFoto, eliminaFoto, copiaFoto, leggiFoto, fotoCitateNeiFile } from './storage/foto.js';
 import { fotoOrfane } from './core/calcoli.js';
 import { render, apriSheet, chiudiConflitto, aggiornaStatoSalvataggio } from './ui/render.js';
 import { toast } from './ui/toast.js';
@@ -56,7 +56,8 @@ async function adotta(h, file) {
   S.dati = normalizza(file);
   salvaLocale();
   const versione = S.dati.aggiornato; // letta prima dell'attesa: una modifica nel frattempo non va segnata come allineata
-  if (String(file.aggiornato || '') !== versione) await scriviFile(h, serializza(S.dati));
+  S.scrittoAlle = null;
+  if (String(file.aggiornato || '') !== versione) { await scriviFile(h, serializza(S.dati)); S.scrittoAlle = new Date().toISOString(); }
   segnaSync(versione);
   S.salvato = 'dal file';
 }
@@ -68,6 +69,7 @@ async function scrivi(h) {
   await scriviFile(h, json);
   segnaSync(versione);
   S.salvato = 'adesso';
+  S.scrittoAlle = new Date().toISOString();
 }
 
 /* Il file, o null se non c'è. Se è illeggibile ne tiene una copia e lo sostituisce subito con i dati
@@ -79,6 +81,7 @@ async function leggiOConserva(h) {
     salvaLocale();
     const scritto = JSON.parse(serializza(S.dati));
     await scriviFile(h, serializza(scritto));
+    S.scrittoAlle = new Date().toISOString();
     toast(FILENAME + ' non era leggibile: l\'ho conservato come ' + copia + ' e riscritto con i dati del telefono.');
     return scritto;
   }
@@ -172,6 +175,7 @@ export function confermaVersione() {
       S.permessoCartella = true;
       segnaSync(tenuta.aggiornato);
       S.salvato = 'adesso';
+      S.scrittoAlle = new Date().toISOString();
       chiudiConflitto();
       render();
       toast((tieniFile ? 'Caricato ' + FILENAME + '. I dati del telefono sono in ' : 'Tenuti i dati del telefono. Il file di prima è in ') + backup + '.' + avviso);
@@ -230,10 +234,13 @@ async function pulisciFoto() {
 /* Si passa a un'altra cartella portando i dati del telefono: le loro foto vengono copiate dalla cartella
    di prima, se è ancora leggibile. Ritorna un avviso da aggiungere al messaggio ('' se tutto bene). */
 async function portaFoto(nuova) {
-  const percorsi = [...fotoCitate(S.dati)];
-  if (!percorsi.length || S.dirHandle === nuova) return '';
+  if (S.dirHandle && await S.dirHandle.isSameEntry(nuova)) return '';
+  // quelle che la cartella nuova ha già non si toccano
+  const percorsi = [];
+  for (const f of fotoCitate(S.dati)) { try { await leggiFoto(nuova, f); } catch (e) { percorsi.push(f); } }
+  if (!percorsi.length) return '';
   const mancate = S.dirHandle && S.permessoCartella ? await copiaFoto(S.dirHandle, nuova, percorsi) : percorsi.length;
-  return mancate ? ' ' + mancate + (mancate === 1 ? ' foto è rimasta' : ' foto sono rimaste') + ' nella cartella di prima: copiale a mano in foto/.' : '';
+  return mancate ? ' ' + mancate + (mancate === 1 ? ' foto manca' : ' foto mancano') + ' nella cartella: copiale a mano in foto/.' : '';
 }
 
 /* Chrome su Android non conserva il permesso tra un avvio e l'altro e lo può chiedere

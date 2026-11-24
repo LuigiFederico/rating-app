@@ -16,6 +16,7 @@ export const S = {
   dirHandle: null,
   permessoCartella: false, // readwrite concesso sulla cartella in questa sessione
   salvato: 'mai',
+  scrittoAlle: null,       // ultima scrittura del file in questa sessione (per lo stato nel profilo)
   scrivo: false,
 
   // pannelli aperti
