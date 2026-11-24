@@ -55,3 +55,4 @@
   pointer-events: auto; animation: pop .2s ease;
 }
 .toast-msg { flex: 1; }
+.toast-undo { min-height: 44px; margin: -12px -10px -12px 0; padding: 0 12px; border-radius: 14px; font-weight: 700; color: var(--accento); }

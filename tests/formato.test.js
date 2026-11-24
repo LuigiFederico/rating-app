@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { esc, voto, dataRelativa, dataBreve, testoConteggio, orarioBreve } from '../src/core/formato.js';
+import { esc, voto, dataRelativa, dataBreve, testoConteggio, primoSegno, orarioBreve } from '../src/core/formato.js';
 
 const oggi = new Date(2026, 10, 24, 15, 0); // 24 novembre 2026, ora locale
 const giorniFa = (n, ora = 10) => new Date(2026, 10, 24 - n, ora).toISOString();
@@ -45,6 +45,15 @@ test('testoConteggio è neutro e salta le parti a zero', () => {
   assert.equal(testoConteggio(1, 0), '1 voto');
   assert.equal(testoConteggio(0, 2), '2 da provare');
   assert.equal(testoConteggio(0, 0), 'Ancora vuota');
+});
+
+test('primoSegno tiene intere le emoji composte', () => {
+  assert.equal(primoSegno('  🍷 vino'), '🍷');
+  assert.equal(primoSegno('👩‍🍳👍'), '👩‍🍳');
+  assert.equal(primoSegno('👍🏽'), '👍🏽');
+  assert.equal(primoSegno('🇮🇹🇫🇷'), '🇮🇹');
+  assert.equal(primoSegno('abc'), 'a');
+  assert.equal(primoSegno('   '), '');
 });
 
 test('orarioBreve ha ore e minuti a due cifre', () => {

@@ -16,5 +16,6 @@ export const S = {
   scrivo: false,
 
   // pannelli aperti
+  categoria: null,        // nuova categoria: { nome, emoji, colore, errore }
   conflitto: null         // file e telefono diversi: quale versione tenere
 };

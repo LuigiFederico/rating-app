@@ -14,3 +14,33 @@
 .pannello-testo strong { color: var(--inchiostro); }
 /* ridisegnare lo stesso pannello non ne ripete l'entrata */
 #sheets[data-fermo="1"] .pannello, #sheets[data-fermo="1"] .velo { animation: none; }
+
+.pannello-testa { display: flex; align-items: center; justify-content: space-between; margin-right: -10px; }
+.pannello-azioni { display: flex; gap: 10px; margin-top: 4px; }
+.cta--stretta { width: auto; flex: none; padding: 0 20px; }
+
+/* campi di un modulo */
+.campo { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.campo > .lab { padding: 0; }
+.input {
+  width: 100%; height: 52px; padding: 0 16px; border: 1.5px solid var(--bordo); border-radius: 16px;
+  background: var(--superficie); font: 500 16px var(--font); outline: none;
+}
+.input:focus { border-color: var(--inchiostro); }
+.input[aria-invalid="true"] { border-color: var(--pericolo); }
+.input::placeholder { color: var(--vuoto); }
+.errore { margin: -2px 4px 0; font-size: 13px; font-weight: 600; color: var(--pericolo); }
+
+/* emoji e colori della categoria */
+.emoji-griglia { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.emoji-scelta { aspect-ratio: 1; min-height: 44px; border-radius: 12px; font-size: 22px; line-height: 1; }
+.emoji-scelta[aria-pressed="true"] { background: var(--superficie); box-shadow: inset 0 0 0 2px var(--inchiostro); }
+.emoji-altra { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--secondario); }
+.input--emoji { width: 72px; text-align: center; font-size: 22px; padding: 0 8px; }
+.colori { display: flex; flex-wrap: wrap; gap: 10px; }
+.colore { position: relative; width: 44px; height: 44px; border-radius: 22px; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(30, 27, 24, .08); }
+.colore input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.colore:has(input:checked) { box-shadow: inset 0 0 0 3px var(--inchiostro); }
+.colore:has(input:focus-visible) { outline: 2px solid var(--accento); outline-offset: 2px; }
+.tile--anteprima { height: 88px; box-shadow: none; pointer-events: none; }
+.tile--anteprima .big { width: 56px; height: 56px; font-size: 32px; }

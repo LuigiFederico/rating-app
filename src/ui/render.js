@@ -5,6 +5,7 @@ import { orarioBreve } from '../core/formato.js';
 import { vistaHome } from './viste/home.js';
 import { vistaProfilo } from './viste/profilo.js';
 import { sheetConflitto } from './sheet/conflitto.js';
+import { sheetCategoria } from './sheet/categoria.js';
 
 const VISTE = { home: vistaHome, profilo: vistaProfilo };
 
@@ -53,30 +54,45 @@ export function vai(vista, categoriaId = null) {
 let ultimoSheet = '';
 
 export function renderSheets() {
-  const quale = S.conflitto ? 'conflitto' : '';
+  // il conflitto passa davanti a tutto: finché non si sceglie, il resto aspetta
+  const quale = S.conflitto ? 'conflitto' : S.categoria ? 'categoria' : '';
   const host = document.getElementById('sheets');
   // ridisegnare lo stesso pannello non ne ripete l'animazione di entrata
   host.dataset.fermo = quale && quale === ultimoSheet ? 1 : 0;
   ultimoSheet = quale;
-  host.innerHTML = quale === 'conflitto' ? sheetConflitto() : '';
+  host.innerHTML = quale === 'conflitto' ? sheetConflitto() : quale === 'categoria' ? sheetCategoria() : '';
 }
 
 export function sheetAperto() {
-  return !!S.conflitto;
+  return !!(S.conflitto || S.categoria);
 }
 
+// chiudiSheet ha chiamato history.back() e il popstate non è ancora arrivato
+let indietroInAttesa = false;
+
 export function apriSheet() {
-  if (!(history.state && history.state.sheet)) history.pushState({ sheet: 1 }, '');
+  // con un Indietro in attesa la voce la aggiunge finitoIndietro, quando arriva il popstate
+  if (!indietroInAttesa && !(history.state && history.state.sheet)) history.pushState({ sheet: 1 }, '');
   renderSheets();
+}
+
+/* Dal popstate: true se era l'Indietro di chiudiSheet (non va trattato come un tasto Indietro).
+   Se nel frattempo si è aperto un altro pannello (per esempio un conflitto), gli ridà la sua voce. */
+export function finitoIndietro() {
+  if (!indietroInAttesa) return false;
+  indietroInAttesa = false;
+  if (sheetAperto()) history.pushState({ sheet: 1 }, '');
+  return true;
 }
 
 /* chiude i pannelli senza toccare la cronologia (dopo un Indietro) */
 export function svuotaSheet() {
   S.conflitto = null;
+  S.categoria = null;
   renderSheets();
 }
 
 export function chiudiSheet() {
   svuotaSheet();
-  if (history.state && history.state.sheet) history.back();
+  if (!indietroInAttesa && history.state && history.state.sheet) { indietroInAttesa = true; history.back(); }
 }

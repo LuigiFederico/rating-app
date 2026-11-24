@@ -42,6 +42,13 @@ export function testoConteggio(votati, daProvare) {
   return parti.join(' · ') || 'Ancora vuota';
 }
 
+/* Prima "lettera" visibile di un testo: un'emoji composta (👩‍🍳, 👍🏽, 🇮🇹) resta intera. */
+export function primoSegno(testo) {
+  const t = String(testo).trim();
+  if (!t) return '';
+  return new Intl.Segmenter('it', { granularity: 'grapheme' }).segment(t)[Symbol.iterator]().next().value.segment;
+}
+
 /* 'alle 14:05' */
 export function orarioBreve(iso) {
   const d = new Date(iso);
