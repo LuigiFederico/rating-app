@@ -1,0 +1,65 @@
+/* Pezzi comuni: pulsanti, gruppi di righe, avvisi, toast. */
+
+/* pulsante tondo da 44px con sola icona (chiudi, indietro) */
+.tondo { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex: none; border-radius: 22px; }
+
+/* pulsante principale arancio e quello chiaro */
+.cta {
+  display: flex; align-items: center; justify-content: center; width: 100%; height: 56px; border-radius: 28px;
+  background: var(--accento); font: 700 17px var(--font); color: var(--inchiostro);
+}
+.cta--chiara { background: var(--superficie); border: 1.5px solid var(--bordo); font-weight: 600; font-size: 15px; }
+.cta:active { filter: brightness(.94); }
+
+/* etichetta di sezione e gruppo di righe bianche (Profilo) */
+.lab { margin: 0 4px; font: 600 12px var(--font); letter-spacing: .6px; color: var(--secondario); }
+.grp { border-radius: 20px; background: var(--superficie); padding: 2px 16px; }
+.it {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; min-height: 52px;
+  border-bottom: 1px solid var(--linea); font-size: 15px; text-align: left;
+}
+.it:last-child { border-bottom: 0; }
+.it--azione { font-weight: 600; }
+.v { color: var(--secondario); font-size: 14px; text-align: right; }
+.stato[data-stato="errore"] { color: var(--pericolo); font-weight: 600; }
+.nota-piccola { margin: -4px 4px 0; font-size: 13px; line-height: 1.4; color: var(--secondario); }
+
+/* riquadro giallo informativo */
+.avviso { display: flex; gap: 12px; padding: 14px 16px; border-radius: 20px; background: var(--avviso); font-size: 14px; line-height: 1.4; }
+.avviso svg { flex: none; margin-top: 1px; }
+
+/* scelta tra due versioni (pannello conflitto) */
+.opzioni { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; }
+.opzione {
+  position: relative; display: flex; gap: 12px; padding: 14px 16px; border-radius: 20px; background: var(--superficie);
+  border: 2px solid transparent; cursor: pointer;
+}
+.opzione[data-on="1"] { border-color: var(--inchiostro); }
+.opzione input { position: absolute; opacity: 0; pointer-events: none; }
+.opzione:focus-within { outline: 2px solid var(--accento); outline-offset: 2px; }
+.opzione-testo { display: flex; flex-direction: column; gap: 2px; }
+.opzione-titolo { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+.opzione-dettaglio { font-size: 13px; color: var(--secondario); }
+.badge { padding: 2px 8px; border-radius: 10px; background: var(--avviso); font-size: 11px; font-weight: 600; }
+
+/* toast in basso */
+.toast-host {
+  position: fixed; left: 0; right: 0; bottom: calc(24px + var(--sicuro-basso)); z-index: 90;
+  display: flex; justify-content: center; padding: 0 16px; pointer-events: none;
+}
+.toast-host[hidden] { display: none; }
+/* con un pannello alto aperto il toast sale sopra i suoi pulsanti in fondo */
+body:has(.pannello--alto) .toast-host { bottom: calc(112px + var(--sicuro-basso)); }
+.toast {
+  display: flex; align-items: center; gap: 12px; width: 100%; max-width: calc(var(--colonna) - 32px);
+  padding: 14px 18px; border-radius: 20px; background: var(--inchiostro); color: var(--carta);
+  font-size: 14px; line-height: 1.35; box-shadow: 0 10px 30px -10px rgba(30, 27, 24, .5);
+  pointer-events: auto; animation: pop .2s ease;
+}
+.toast-msg { flex: 1; }
+.toast-undo { min-height: 44px; margin: -12px -10px -12px 0; padding: 0 12px; border-radius: 14px; font-weight: 700; color: var(--accento); }
+
+/* eliminazioni */
+.cta--pericolo { background: var(--pericolo); color: #FFFFFF; }
+.avviso--pericolo { background: #F8DCD8; }
+.link-pericolo { align-self: center; min-height: 44px; padding: 0 12px; font-weight: 600; font-size: 15px; color: var(--pericolo); }

@@ -1,0 +1,156 @@
+/* Pannelli che salgono dal basso, sopra un velo. */
+
+.sheet { position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+.velo { position: absolute; inset: 0; background: rgba(30, 27, 24, .45); animation: fade .18s ease; }
+.pannello {
+  position: relative; display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: var(--colonna); max-height: 92%;
+  overflow-y: auto; padding: 10px 20px calc(24px + var(--sicuro-basso));
+  border-radius: 28px 28px 0 0; background: var(--carta);
+  animation: up .26s cubic-bezier(.22, .85, .3, 1);
+}
+.maniglia { align-self: center; flex: none; width: 40px; height: 5px; border-radius: 3px; background: var(--maniglia); }
+.pannello-titolo { font-size: 24px; line-height: 1.15; }
+.pannello-testo { font-size: 15px; line-height: 1.45; color: var(--secondario); }
+.pannello-testo strong { color: var(--inchiostro); }
+/* ridisegnare lo stesso pannello non ne ripete l'entrata */
+#sheets[data-fermo="1"] .pannello, #sheets[data-fermo="1"] .velo { animation: none; }
+
+.pannello-testa { display: flex; align-items: center; justify-content: space-between; margin-right: -10px; }
+.pannello-azioni { display: flex; gap: 10px; margin-top: 4px; }
+.cta--stretta { width: auto; flex: none; padding: 0 20px; }
+
+/* campi di un modulo */
+.campo { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.campo > .lab { padding: 0; }
+.input {
+  width: 100%; height: 52px; padding: 0 16px; border: 1.5px solid var(--bordo); border-radius: 16px;
+  background: var(--superficie); font: 500 16px var(--font); outline: none;
+}
+.input:focus { border-color: var(--inchiostro); }
+.input[aria-invalid="true"] { border-color: var(--pericolo); }
+.input::placeholder { color: var(--vuoto); }
+.errore { margin: -2px 4px 0; font-size: 13px; font-weight: 600; color: var(--pericolo); }
+
+/* emoji e colori della categoria */
+.emoji-griglia { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.emoji-scelta { aspect-ratio: 1; min-height: 44px; border-radius: 12px; font-size: 22px; line-height: 1; }
+.emoji-scelta[aria-pressed="true"] { background: var(--superficie); box-shadow: inset 0 0 0 2px var(--inchiostro); }
+.emoji-altra { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--secondario); }
+.input--emoji { width: 72px; text-align: center; font-size: 22px; padding: 0 8px; }
+.colori { display: flex; flex-wrap: wrap; gap: 10px; }
+.colore { position: relative; width: 44px; height: 44px; border-radius: 22px; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(30, 27, 24, .08); }
+.colore input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.colore:has(input:checked) { box-shadow: inset 0 0 0 3px var(--inchiostro); }
+.colore:has(input:focus-visible) { outline: 2px solid var(--accento); outline-offset: 2px; }
+.tile--anteprima { height: 88px; box-shadow: none; pointer-events: none; }
+.tile--anteprima .big { width: 56px; height: 56px; font-size: 32px; }
+
+/* ---------- pannelli alti: Scheda e Modifica (dal design: velo grigio, foglio da 58px sotto il bordo) ---------- */
+.sheet--alto { justify-content: flex-end; }
+.velo--alto { background: rgba(30, 27, 24, .5); }
+.pannello--alto {
+  height: calc(100% - 58px - var(--sicuro-alto)); max-height: none; padding: 0; gap: 0; overflow: hidden;
+}
+.alto-testa { display: flex; flex-direction: column; padding: 10px 20px 6px; flex: none; }
+.alto-barra { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-right: -10px; }
+.alto-sinistra { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.chip-cat { display: flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 18px; font: 600 14px var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-modifica {
+  display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 14px;
+  background: var(--inchiostro); color: var(--carta); font: 600 12px var(--font); white-space: nowrap;
+}
+.alto-corpo {
+  flex: 1; overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: 18px; padding: 0 20px calc(110px + var(--sicuro-basso));
+}
+.alto-corpo::-webkit-scrollbar { display: none; }
+.alto-piede {
+  flex: none; display: flex; gap: 10px; align-items: center; padding: 12px 20px calc(20px + var(--sicuro-basso));
+  border-top: 1px solid var(--linea); background: var(--carta);
+}
+/* con il piede fisso il corpo non ha bisogno dello spazio per il pulsante tondo */
+.alto-piede ~ .alto-corpo, .pannello--alto:has(.alto-piede) .alto-corpo { padding-bottom: 24px; }
+.fab--pannello { position: absolute; right: 20px; bottom: calc(34px + var(--sicuro-basso)); }
+
+.scheda-nome { font-size: 28px; line-height: 1.1; overflow-wrap: anywhere; }
+.scheda-data { font-size: 12px; color: var(--secondario); text-align: center; }
+.sezione { display: flex; flex-direction: column; gap: 8px; }
+.sezione-titolo { font-size: 18px; font-weight: 700; }
+.nota { margin: 0; padding: 14px 16px; border-radius: 20px; background: var(--superficie); font: 400 15px/1.45 var(--font); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* dettagli: righe chiave/valore in una card bianca */
+.card { margin: 0; border-radius: 20px; background: var(--superficie); padding: 4px 16px; }
+.f { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 46px; border-bottom: 1px solid var(--linea); font-size: 15px; }
+.f:last-child { border-bottom: 0; }
+.f dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+.k { color: var(--secondario); font-size: 14px; flex: none; max-width: 45%; overflow-wrap: anywhere; }
+.vuoto-valore { color: var(--vuoto); }
+
+/* voto: vicini sopra e sotto, cinque stelle */
+.voto-blocco { display: flex; flex-direction: column; gap: 8px; }
+.vicino { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 12px; border-radius: 12px; background: var(--tenue); font-size: 13px; color: var(--secondario); }
+.vicino-nome { flex: 1; min-width: 0; color: var(--inchiostro); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vicino .titoli { font-size: 16px; color: var(--inchiostro); }
+.stelle { display: flex; justify-content: center; align-items: center; gap: 4px; padding: 4px 0; }
+.stella { position: relative; width: 44px; height: 44px; flex: none; }
+.stella svg { display: block; position: absolute; left: 0; top: 0; }
+.stella-piena { position: absolute; left: 0; top: 0; height: 44px; overflow: hidden; }
+.stelle--scelta { gap: 2px; }
+.stella--scelta { width: 50px; height: 50px; transition: transform .18s cubic-bezier(.34, 1.8, .64, 1); }
+.stella--scelta > svg, .stella--scelta > .stella-piena { left: 3px; top: 3px; }
+.stella-piena svg { left: 0; top: 0; }
+.stella--scelta:active { transform: scale(1.2); }
+.stella-meta { position: absolute; top: 0; bottom: 0; width: 50%; }
+.stella-meta--sx { left: 0; }
+.stella-meta--dx { right: 0; }
+.non-so {
+  width: 52px; height: 52px; margin-left: 8px; flex: none; border-radius: 26px; border: 2px dashed var(--tratteggio);
+  font: 800 24px/1 var(--titoli); display: flex; align-items: center; justify-content: center;
+}
+.non-so[aria-pressed="true"] { background: var(--inchiostro); color: var(--carta); border: 2px solid var(--inchiostro); }
+.avviso--stretto { padding: 10px 12px; border-radius: 12px; font-size: 13px; }
+
+/* modifica: nome grande, nota, campi liberi */
+.input-nome { width: 100%; padding: 2px 0; border: 0; outline: 0; background: transparent; font-size: 28px; border-bottom: 2px solid transparent; }
+.input-nome:focus { border-bottom-color: var(--inchiostro); }
+.input-nome::placeholder { color: var(--vuoto); }
+.input-nome[aria-invalid="true"] { border-bottom-color: var(--pericolo); }
+.nota--modifica { border: 0; outline: 0; resize: none; color: var(--inchiostro); }
+.nota--modifica:focus { box-shadow: inset 0 0 0 1.5px var(--inchiostro); }
+.campi-liberi { display: flex; flex-direction: column; gap: 10px; }
+.f--modifica { min-height: 48px; }
+.rm { width: 28px; height: 28px; flex: none; border-radius: 14px; background: var(--pericolo); display: flex; align-items: center; justify-content: center; margin-left: -4px; position: relative; }
+.rm::after { content: ''; position: absolute; inset: -8px; }
+.campo-nome, .campo-valore { min-width: 0; border: 0; outline: 0; background: transparent; font: 500 15px var(--font); padding: 12px 0; }
+.campo-nome { width: 96px; flex: none; color: var(--secondario); font-size: 14px; }
+.campo-valore { flex: 1; text-align: right; }
+.campo-nome::placeholder, .campo-valore::placeholder { color: var(--vuoto); }
+.campo-nome:focus, .campo-valore:focus { box-shadow: 0 2px 0 var(--inchiostro); }
+.pulsante-chiaro {
+  align-self: flex-start; height: 44px; padding: 0 16px; border-radius: 22px; border: 1.5px solid var(--bordo);
+  background: var(--superficie); font: 600 14px var(--font);
+}
+
+/* foto: riquadro nel colore della categoria, immagine ritagliata a riempirlo */
+.foto { position: relative; flex: none; overflow: hidden; display: flex; align-items: center; justify-content: center; border-radius: 20px; }
+.foto img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.foto--grande { width: 100%; height: 200px; }
+.foto--mini { width: 96px; height: 96px; border-radius: 18px; }
+.foto-testo { padding: 12px; font-size: 13px; line-height: 1.35; text-align: center; }
+.foto--mini .foto-testo { padding: 6px; font-size: 11px; }
+.foto-mancante, .foto--mancante img { display: none; }
+.foto--mancante .foto-mancante { display: block; }
+.foto-riga { display: flex; gap: 10px; }
+.foto-mini-box { position: relative; }
+.foto-togli {
+  position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 16px;
+  background: var(--superficie); display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(30, 27, 24, .25);
+}
+.foto-togli svg { width: 14px; height: 14px; }
+.foto-aggiungi {
+  position: relative; width: 96px; height: 96px; flex: none; border-radius: 18px; border: 2px dashed var(--tratteggio);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font: 600 13px var(--font); cursor: pointer;
+}
+.foto-aggiungi:focus-within { outline: 2px solid var(--accento); outline-offset: 2px; }
+.foto-aggiungi--spenta { opacity: .45; cursor: default; }
+.foto-aggiungi--attesa { opacity: .6; cursor: progress; }

@@ -1,0 +1,25 @@
+/* Colori, font e misure del design "Primo design". */
+:root {
+  --carta: #FAF6EE;          /* sfondo */
+  --inchiostro: #1E1B18;     /* testo e contorni */
+  --accento: #FF5A3C;        /* pulsanti principali, stelle */
+  --secondario: #6B645C;     /* testo secondario (5,4:1 sulla carta) */
+  --vuoto: #A39B90;          /* valori mancanti, segnaposto */
+  --superficie: #FFFFFF;     /* card */
+  --tenue: #F3EDE2;          /* righe "sopra/sotto" del voto */
+  --bordo: #E9E2D6;          /* bordo di chip e pulsanti chiari */
+  --linea: #EFE8DC;          /* separatori nelle card */
+  --tratteggio: #CFC6B8;     /* bordi tratteggiati */
+  --maniglia: #D8D0C3;       /* maniglia dei pannelli */
+  --velo: #8C857C;           /* dietro i pannelli */
+  --avviso: #FBE8B4;         /* riquadri informativi */
+  --pericolo: #B3261E;       /* eliminazioni */
+  --fuori: #EDE6D9;          /* ai lati della colonna, su schermi larghi */
+
+  --font: Inter, -apple-system, system-ui, sans-serif;
+  --titoli: 'Bricolage Grotesque', var(--font);
+
+  --colonna: 430px;
+  --sicuro-alto: env(safe-area-inset-top, 0px);
+  --sicuro-basso: env(safe-area-inset-bottom, 0px);
+}
